@@ -1,0 +1,50 @@
+{
+  "model": "GraphAwareBlockVEM",
+  "panel": {
+    "n_subjects": 19,
+    "n_obs": 50,
+    "obs_per_wave": {
+      "baseline": 19,
+      "year2": 16,
+      "year4": 15
+    },
+    "waves_per_subject": [
+      0,
+      0,
+      7,
+      12
+    ],
+    "harmonized": {
+      "site_id_l": 0,
+      "sex": 0,
+      "hisp": 0,
+      "race_1": 0,
+      "race_2": 0,
+      "race_3": 0
+    }
+  },
+  "d": 0.002466113314570245,
+  "covariates": [
+    "intercept",
+    "age",
+    "sleep_hours",
+    "meanFD",
+    "g",
+    "sex",
+    "hisp",
+    "race_1",
+    "race_2",
+    "race_3",
+    "ses",
+    "age:g",
+    "age:sex",
+    "age:sleep_hours",
+    "g:sleep_hours"
+  ],
+  "global_covariates": {
+    "site_id_l_site02": -0.0411495561515031,
+    "site_id_l_site03": 0.01916549423741216
+  },
+  "log_likelihood": 1828.2402549515523,
+  "n_iter": 42
+}

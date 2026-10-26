@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "graph_aware"
+version = "0.1.0"
+description = "Graph-aware random-intercept models for longitudinal brain connectivity"
+requires-python = ">=3.9"
+dependencies = ["numpy>=1.23", "scipy>=1.9", "pandas>=1.5", "pyyaml>=6"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "statsmodels>=0.13"]
+
+[tool.setuptools]
+packages = ["graph_aware"]

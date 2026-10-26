@@ -29,6 +29,17 @@ pytest                          # ~3 s, synthetic data only
 python examples/synthetic_demo.py
 ```
 
+## Quick example (bundled synthetic data)
+```bash
+python scripts/fit_model.py examples/example_config.yaml
+```
+examples/data/ holds a tiny fully simulated panel: 20 subjects, 3 waves (some subjects miss a wave), 
+16 ROIs in 4 systems (120 edges, 10 cells). Its files have exactly the layout real data needs.
+Results go to examples/results/. examples/make_example_data.py regenerates the data.
+
+Only age (in about half the cells) and site have true effects. With about 20 subject clusters, the sandwich SEs are 
+badly anticonservative, so pure-noise subject-level covariates such as g can come out "significant". 
+That's expected at this size: this example shows the mechanics, not the inference.
 ## Running on your data
 
 1. Prepare one features CSV and one connectome `.npy` per wave. In the `.npy`,
@@ -40,6 +51,12 @@ python examples/synthetic_demo.py
    add an entry under `waves:`.
 3. `python scripts/fit_model.py config.yaml`
 
+Interactions go under model.interactions as pairs, either [age, g] or "age:g". 
+Each term must be age or a column listed in extra_covariates. Products are 
+built from the centered columns, so the age main effect is the effect at the 
+mean of the other covariate. List the interaction itself under 
+inference.focus ("age:g"), or use focus: all. BH correction is applied 
+over cells, separately for each focus covariate.
 The outputs, `results/cells_<covariate>.csv` and `results/fit_summary.json`,
 hold cell-level summaries only.
 
@@ -74,7 +91,7 @@ of the same size, so plan for roughly 3×.
 ## Layout
 
 ```
-graphaware/
+graph_aware/
   cells.py     parcellation → system-pair cells
   panel.py     stack any number of waves into long format
   models.py    diagonal-V and block-V EM, LL, predictive LL, diagnostics

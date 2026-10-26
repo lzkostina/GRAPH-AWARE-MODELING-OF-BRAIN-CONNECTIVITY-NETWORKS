@@ -25,13 +25,15 @@ model:
   type: blockv                     # blockv | diag
   age_col: age                     # months; centered at pooled mean
   extra_covariates: [sex, meanFD]  # cell-specific effects (centered)
+  interactions:                    # pairs of age / extra_covariates; built from the
+    - [age, sex]                   # centered columns. Also accepted: "age:sex"
   global_categorical: [site_id_l]  # dummy-coded, one shared effect on all edges
   global_numeric: []
   max_iter: 50
   tol: 1.0e-6
 
 inference:
-  focus: [age, meanFD]
+  focus: [age, meanFD, "age:sex"]  # or: all
   adjust_method: BH                # BH | BY | holm
   alpha: 0.05
 

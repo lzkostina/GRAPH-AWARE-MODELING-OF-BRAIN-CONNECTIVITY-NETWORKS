@@ -1,0 +1,8 @@
+numpy>=1.23
+scipy>=1.9
+pandas>=1.5
+pyyaml>=6
+
+[dev]
+pytest>=7
+statsmodels>=0.13

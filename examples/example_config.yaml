@@ -1,0 +1,40 @@
+# Runs on the bundled synthetic data. From the repo root:
+#   python scripts/fit_model.py examples/example_config.yaml
+parcellation: examples/data/parcellation.csv
+network_col: NetworkNumber
+name_col: Community
+subject_col: Subject
+
+waves:
+  - name: baseline
+    features: examples/data/features_baseline.csv
+    connectomes: examples/data/connectomes_baseline.npy
+  - name: year2
+    features: examples/data/features_year2.csv
+    connectomes: examples/data/connectomes_year2.npy
+  - name: year4
+    features: examples/data/features_year4.csv
+    connectomes: examples/data/connectomes_year4.npy
+
+min_waves: 2
+time_invariant: [site_id_l, sex, hisp, race_1, race_2, race_3]
+
+model:
+  type: blockv
+  age_col: age
+  extra_covariates: [sleep_hours, meanFD, g, sex, hisp, race_1, race_2, race_3, ses]
+  interactions:
+    - [age, g]
+    - [age, sex]
+    - [age, sleep_hours]
+    - [g, sleep_hours]
+  global_categorical: [site_id_l]
+  max_iter: 100
+  tol: 1.0e-6
+
+inference:
+  focus: [age, g, "age:g"]
+  adjust_method: BH
+  alpha: 0.05
+
+output_dir: examples/results

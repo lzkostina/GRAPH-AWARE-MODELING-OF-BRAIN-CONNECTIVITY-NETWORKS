@@ -114,3 +114,36 @@ def test_d_init_with_time_invariant_covariate():
                              cell_id_of_edge=cs.cell_id_of_edge, edges_per_cell=cs.edges_per_cell,
                              extra_covariates=sex, covariate_names=["sex"], verbose=False).fit()
     assert abs(m.d - truth["d"]) / truth["d"] < 0.25
+
+
+def test_recovers_interaction():
+    waves, regions, _ = simulate_panel(n_subjects=500, n_waves=3, seed=5)
+    P = G.stack_waves(waves, time_invariant=["sex"], verbose=False)
+    cs = G.build_cells_from_gordon(regions, P.Y.shape[1])
+    age = P.centered("age")
+    sex = P.matrix(["sex"])[:, 0]; sex -= sex.mean()
+    beta_int = np.random.default_rng(0).normal(0, 0.002, cs.C)
+    Y = P.Y.copy()
+    for c, eidx in enumerate(cs.edges_per_cell):
+        Y[:, eidx] += (beta_int[c] * age * sex)[:, None]
+    m = G.GraphAwareBlockVEM(Y=Y, age=age, subject_id=P.subject_id,
+                             cell_id_of_edge=cs.cell_id_of_edge, edges_per_cell=cs.edges_per_cell,
+                             extra_covariates=sex, covariate_names=["sex"],
+                             interaction_specs=[("age", "sex")], verbose=False).fit()
+    assert m.covariate_names_full == ["intercept", "age", "sex", "age:sex"]
+    assert np.corrcoef(m.alpha[:, 3], beta_int)[0, 1] > 0.95
+    d = m.diagnostics(focus="age:sex")
+    assert d["focus_name"] == "age:sex"
+
+
+def test_script_parses_interactions():
+    import importlib.util, pathlib
+    spec = importlib.util.spec_from_file_location(
+        "fit_model", pathlib.Path(__file__).parents[1] / "scripts" / "fit_model.py")
+    fm = importlib.util.module_from_spec(spec); spec.loader.exec_module(fm)
+    cfg = {"interactions": [["age", "g"], "g:sleep_hours"]}
+    assert fm.parse_interactions(cfg, ["g", "sleep_hours"]) == [("age", "g"), ("g", "sleep_hours")]
+    with pytest.raises(ValueError):
+        fm.parse_interactions({"interactions": [["age", "site_id_l"]]}, ["g"])
+    with pytest.raises(ValueError):
+        fm.parse_interactions({"interactions": [["age", "g"], ["g", "age"]]}, ["g"])

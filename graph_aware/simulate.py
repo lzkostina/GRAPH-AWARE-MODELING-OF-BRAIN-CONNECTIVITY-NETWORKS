@@ -38,9 +38,12 @@ def simulate_panel(
     `within_cell_corr`), independent across cells.
     """
     rng = np.random.default_rng(seed)
-    systems = np.sort(rng.integers(1, n_systems + 1, size=n_rois))
-    systems[:n_systems] = np.arange(1, n_systems + 1)          # every system present
-    systems = np.sort(systems)
+    if n_rois < 2 * n_systems:
+        raise ValueError("need at least 2 ROIs per system")
+    # every system gets >= 2 ROIs, so no cell is empty
+    extra = rng.integers(0, n_systems, size=n_rois - 2 * n_systems)
+    sizes = 2 + np.bincount(extra, minlength=n_systems)
+    systems = np.repeat(np.arange(1, n_systems + 1), sizes)
     regions = pd.DataFrame({
         "ParcelID": np.arange(1, n_rois + 1),
         "NetworkNumber": systems,

@@ -1,0 +1,12 @@
+Metadata-Version: 2.4
+Name: graph_aware
+Version: 0.1.0
+Summary: Graph-aware random-intercept models for longitudinal brain connectivity
+Requires-Python: >=3.9
+Requires-Dist: numpy>=1.23
+Requires-Dist: scipy>=1.9
+Requires-Dist: pandas>=1.5
+Requires-Dist: pyyaml>=6
+Provides-Extra: dev
+Requires-Dist: pytest>=7; extra == "dev"
+Requires-Dist: statsmodels>=0.13; extra == "dev"

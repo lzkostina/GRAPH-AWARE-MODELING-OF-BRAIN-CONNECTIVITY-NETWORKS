@@ -45,6 +45,29 @@ def build_inputs(P, mcfg):
     return age, extra, extra_cols, Zg, g_names
 
 
+def parse_interactions(mcfg, extra_cols):
+    """Accept [[a, b], ...] or ["a:b", ...]; terms must be 'age' or extra covariates."""
+    allowed = ["age"] + list(extra_cols)
+    specs = []
+    for item in mcfg.get("interactions", []) or []:
+        pair = item.split(":") if isinstance(item, str) else list(item)
+        if len(pair) != 2:
+            raise ValueError(f"interaction {item!r}: give exactly two terms")
+        a, b = (str(x).strip() for x in pair)
+        a = "age" if a == mcfg.get("age_col", "age") else a
+        b = "age" if b == mcfg.get("age_col", "age") else b
+        bad = [x for x in (a, b) if x not in allowed]
+        if bad:
+            raise ValueError(f"interaction {item!r}: {bad} not in age or extra_covariates "
+                             f"(global covariates cannot enter interactions)")
+        if a == b:
+            raise ValueError(f"interaction {item!r}: use a squared column instead")
+        if (a, b) in specs or (b, a) in specs:
+            raise ValueError(f"interaction {item!r} listed twice")
+        specs.append((a, b))
+    return specs
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("config")
@@ -64,16 +87,23 @@ def main():
 
     mcfg = cfg.get("model", {})
     age, extra, extra_cols, Zg, g_names = build_inputs(P, mcfg)
+    interactions = parse_interactions(mcfg, extra_cols)
     cls = {"blockv": G.GraphAwareBlockVEM, "diag": G.GraphAwareRandomInterceptEM}[mcfg.get("type", "blockv")]
     model = cls(Y=P.Y, age=age, subject_id=P.subject_id,
                 cell_id_of_edge=cs.cell_id_of_edge, edges_per_cell=cs.edges_per_cell,
                 extra_covariates=extra, covariate_names=extra_cols or None,
                 global_covariates=Zg, global_covariate_names=g_names or None,
+                interaction_specs=interactions,
                 max_iter=mcfg.get("max_iter", 50), tol=float(mcfg.get("tol", 1e-6)))
     model.fit()
 
     icfg = cfg.get("inference", {})
-    for focus in icfg.get("focus", ["age"]):
+    focus_list = icfg.get("focus", ["age"])
+    if focus_list == "all":
+        focus_list = model.covariate_names_full[1:]
+    for focus in focus_list:
+        if isinstance(focus, (list, tuple)):          # [age, g] -> "age:g"
+            focus = ":".join(focus)
         d = model.diagnostics(focus=focus, cell_labels=labels,
                               adjust_method=icfg.get("adjust_method", "BH"),
                               alpha=icfg.get("alpha", 0.05))
@@ -83,7 +113,7 @@ def main():
             "n_edges": d["n_edges"], "estimate": d["focus_alpha"], "se": d["focus_se"],
             "z": d["focus_z"], "p": d["focus_p_raw"], "p_adj": d["focus_p_adj"],
             "significant": d["focus_sig_adj"],
-        }).to_csv(out / f"cells_{focus}.csv", index=False)
+        }).to_csv(out / f"cells_{focus.replace(':', '_x_')}.csv", index=False)
 
     summary = {"model": cls.__name__, "panel": P.report, "d": model.d,
                "covariates": model.covariate_names_full,
