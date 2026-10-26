@@ -46,17 +46,18 @@ hold cell-level summaries only.
 From Python:
 
 ```python
-import graphaware as G
-P  = G.stack_waves([{"features": f0, "connectomes": Y0},
-                    {"features": f1, "connectomes": Y1},
-                    {"features": f2, "connectomes": Y2}],
-                   wave_names=["baseline", "year2", "year4"],
-                   time_invariant=["site_id_l", "sex"])
+import scripts as G
+
+P = G.stack_waves([{"features": f0, "connectomes": Y0},
+                   {"features": f1, "connectomes": Y1},
+                   {"features": f2, "connectomes": Y2}],
+                  wave_names=["baseline", "year2", "year4"],
+                  time_invariant=["site_id_l", "sex"])
 cs = G.build_cells_from_gordon(regions, P.Y.shape[1])
 sites, names = P.dummies("site_id_l")
-m  = G.GraphAwareBlockVEM(Y=P.Y, age=P.centered("age"), subject_id=P.subject_id,
-                          cell_id_of_edge=cs.cell_id_of_edge, edges_per_cell=cs.edges_per_cell,
-                          global_covariates=sites - sites.mean(0), global_covariate_names=names).fit()
+m = G.GraphAwareBlockVEM(Y=P.Y, age=P.centered("age"), subject_id=P.subject_id,
+                         cell_id_of_edge=cs.cell_id_of_edge, edges_per_cell=cs.edges_per_cell,
+                         global_covariates=sites - sites.mean(0), global_covariate_names=names).fit()
 res = m.diagnostics(focus="age", cell_labels=G.cell_labels_from_gordon(regions, cs))
 ```
 
