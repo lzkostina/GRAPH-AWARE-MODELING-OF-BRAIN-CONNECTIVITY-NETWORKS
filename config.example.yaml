@@ -1,0 +1,38 @@
+# Copy to config.yaml (git-ignored) and edit paths. Add as many waves as you have.
+parcellation: data/raw/gordon_sub_cere_parcels.csv   # one row per ROI, in connectome order
+network_col: NetworkNumber
+name_col: Community
+subject_col: Subject
+
+# Per wave: features CSV (one row per subject, with subject_col) and a
+# connectome .npy of shape (n_subjects, E) whose row i matches CSV row i.
+# E = R(R-1)/2, upper triangle in np.triu_indices(R, k=1) order.
+waves:
+  - name: baseline
+    features: data/processed/features_baseline.csv
+    connectomes: data/processed/connectomes_baseline.npy
+  - name: year2
+    features: data/processed/features_year2.csv
+    connectomes: data/processed/connectomes_year2.npy
+  - name: year4
+    features: data/processed/features_year4.csv
+    connectomes: data/processed/connectomes_year4.npy
+
+min_waves: 2                       # drop subjects seen in fewer waves
+time_invariant: [site_id_l, sex]   # set to first observed wave within subject
+
+model:
+  type: blockv                     # blockv | diag
+  age_col: age                     # months; centered at pooled mean
+  extra_covariates: [sex, meanFD]  # cell-specific effects (centered)
+  global_categorical: [site_id_l]  # dummy-coded, one shared effect on all edges
+  global_numeric: []
+  max_iter: 50
+  tol: 1.0e-6
+
+inference:
+  focus: [age, meanFD]
+  adjust_method: BH                # BH | BY | holm
+  alpha: 0.05
+
+output_dir: results

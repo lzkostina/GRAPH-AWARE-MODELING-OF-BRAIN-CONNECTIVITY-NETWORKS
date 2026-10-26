@@ -85,16 +85,8 @@ scripts/fit_model.py   config-driven run
 tests/                 synthetic tests (no real data)
 ```
 
-## Notes and known issues
+## Notes 
 
-- **Initialization of `d`.** The original notebook took per-subject OLS
-  intercepts. When a subject has fewer observations than columns of `X` (two
-  waves plus any extra covariate), every subject falls back to the same value,
-  so `d` starts at 1e-8. The default is now a moment estimator that works for
-  any T and covariate set. `d_init="subject_ols"` reproduces the old behaviour.
-- **Block-V standard errors** reuse the diagonal weights `1/v_e` in the
-  sandwich, while the block-V point estimates use `V_c^{-1} 1` weights. This
-  matches the notebook results, but it is worth a look.
 - **Shrinkage of large blocks** triggers when `E_c > N_obs`, where `N_obs`
   counts observations, not subjects. With more waves, fewer blocks get shrunk.
 - **Convergence** uses relative LL change < `tol`. The LL is of order 1e8, so

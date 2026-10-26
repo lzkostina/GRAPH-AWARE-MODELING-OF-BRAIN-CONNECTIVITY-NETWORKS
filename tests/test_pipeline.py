@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-import graphaware as G
-from graphaware.simulate import simulate_panel
+import graph_aware as G
+from graph_aware.simulate import simulate_panel
 
 
 @pytest.fixture(scope="module")
