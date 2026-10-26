@@ -21,16 +21,27 @@ covariates with one shared effect on every edge (e.g. site). Both models are
 fit by EM. Inference is per cell, using subject-clustered sandwich SEs with
 BH/BY/Holm correction.
 
-## Install
+## Quick start
 
 ```bash
+# 1. Get the code
+git clone github.com:lzkostina/GRAPH-AWARE-MODELING-OF-BRAIN-CONNECTIVITY-NETWORKS.git
+cd graphaware-connectivity
+
+# 2. Create an isolated environment (recommended)
+python -m venv .venv
+source .venv/bin/activate
+
+# 3. Install the package 
 pip install -e ".[dev]"
-pytest                          # ~3 s, synthetic data only
-python examples/synthetic_demo.py
+
+# 4. Optional: check the install (~3 s)
+pytest -q   
 ```
 
 ## Quick example (bundled synthetic data)
 ```bash
+# Run the example. Must be run from the repo root.
 python scripts/fit_model.py examples/example_config.yaml
 ```
 examples/data/ holds a tiny fully simulated panel: 20 subjects, 3 waves (some subjects miss a wave), 
