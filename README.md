@@ -3,7 +3,7 @@
 Graph-aware random-intercept models for longitudinal functional connectivity,
 extending Kim, Kessler & Levina (2023, *AOAS*) to repeated measurements.
 Works with **any number of waves**. Panels can be unbalanced, so subjects may
-miss waves.
+potentially miss waves. 
 
 For observation *n* of subject *m*, and edge *e* in system-pair cell *c*:
 
